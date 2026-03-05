@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>VRM Avatar Showcase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary: #d97706;
+        --primary-light: #fbbf24;
+        --primary-dark: #b45309;
+        --secondary: #6b7280;
+        --accent: #10b981;
+        --bg-light: #fffbf0;
+        --bg-white: #ffffff;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --border-color: #fde68a;
+        --radius: 1rem;
+      }
+
+      html {
+        font-family: 'Poppins', sans-serif;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: linear-gradient(to bottom, #fffbf0, #ffffff, #fef3c7);
+        color: var(--text-dark);
+        line-height: 1.6;
+      }
+
+      button {
+        font-family: 'Poppins', sans-serif;
+        cursor: pointer;
+        border: none;
+        background: none;
+      }
+
+      a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      #app {
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+    <script
+      defer
+      src="%VITE_ANALYTICS_ENDPOINT%/umami"
+      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
+  </body>
+</html>
