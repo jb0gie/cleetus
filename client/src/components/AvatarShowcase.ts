@@ -40,7 +40,7 @@ export class AvatarShowcase extends HTMLElement {
       .container {
         width: 100%;
         min-height: 100vh;
-        background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+        background: linear-gradient(135deg, #ff00ff 0%, #ff1493 25%, #ff69b4 50%, #ff1493 75%, #ff00ff 100%);
         display: flex;
         flex-direction: column;
         position: relative;
@@ -71,36 +71,40 @@ export class AvatarShowcase extends HTMLElement {
       }
 
       h1 {
-        font-size: 3.5rem;
-        font-weight: 800;
-        color: #1f2937;
+        font-size: 4rem;
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff1493;
         margin-bottom: 0.5rem;
         font-family: 'Poppins', sans-serif;
         line-height: 1.1;
       }
 
       .subtitle {
-        font-size: 1rem;
-        color: #6b7280;
+        font-size: 1.2rem;
+        color: #ffff00;
+        text-shadow: 0 0 10px #ff1493;
         margin-bottom: 1.5rem;
         font-family: 'Poppins', sans-serif;
         font-weight: 500;
       }
 
       .description {
-        font-size: 0.95rem;
-        color: #4b5563;
+        font-size: 1rem;
+        color: #ffffff;
+        text-shadow: 0 0 5px #ff1493;
         line-height: 1.7;
         margin-bottom: 2rem;
         font-family: 'Poppins', sans-serif;
       }
 
       .controls-list {
-        background: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 0, 255, 0.2);
         backdrop-filter: blur(0.5rem);
         border-radius: 1rem;
         padding: 1.5rem;
-        border: 1px solid rgba(244, 114, 182, 0.3);
+        border: 2px solid #ff00ff;
+        box-shadow: 0 0 20px #ff00ff, inset 0 0 20px rgba(255, 20, 147, 0.3);
         margin-bottom: 1.5rem;
       }
 
@@ -108,7 +112,8 @@ export class AvatarShowcase extends HTMLElement {
         font-size: 0.875rem;
         font-weight: 700;
         text-transform: uppercase;
-        color: #be185d;
+        color: #ffff00;
+        text-shadow: 0 0 10px #ff00ff;
         margin-bottom: 1rem;
         letter-spacing: 0.05em;
         font-family: 'Poppins', sans-serif;
@@ -121,7 +126,7 @@ export class AvatarShowcase extends HTMLElement {
 
       .controls-list li {
         font-size: 0.9rem;
-        color: #4b5563;
+        color: #ffffff;
         margin-bottom: 0.75rem;
         padding-left: 1.5rem;
         position: relative;
@@ -136,7 +141,8 @@ export class AvatarShowcase extends HTMLElement {
         content: '→';
         position: absolute;
         left: 0;
-        color: #ec4899;
+        color: #ffff00;
+        text-shadow: 0 0 10px #ff00ff;
         font-weight: 700;
       }
 
@@ -147,17 +153,18 @@ export class AvatarShowcase extends HTMLElement {
       }
 
       .info-card {
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 0, 255, 0.2);
         border-radius: 0.875rem;
         padding: 1rem;
-        border: 1px solid rgba(244, 114, 182, 0.2);
+        border: 2px solid #ff00ff;
+        box-shadow: 0 0 15px #ff00ff;
       }
 
       .info-label {
         font-size: 0.7rem;
         font-weight: 700;
         text-transform: uppercase;
-        color: #6b7280;
+        color: #ffff00;
         margin-bottom: 0.5rem;
         letter-spacing: 0.05em;
         font-family: 'Poppins', sans-serif;
@@ -166,7 +173,7 @@ export class AvatarShowcase extends HTMLElement {
       .info-value {
         font-size: 0.95rem;
         font-weight: 600;
-        color: #1f2937;
+        color: #ffffff;
         font-family: 'Poppins', sans-serif;
       }
 
@@ -199,32 +206,38 @@ export class AvatarShowcase extends HTMLElement {
       }
 
       .shape-1 {
-        width: 20rem;
-        height: 20rem;
-        background: #d97706;
-        top: -5rem;
-        right: -5rem;
+        width: 25rem;
+        height: 25rem;
+        background: #ff00ff;
+        box-shadow: 0 0 60px #ff00ff;
+        opacity: 0.4;
+        top: -8rem;
+        right: -8rem;
       }
 
       .shape-2 {
-        width: 15rem;
-        height: 15rem;
-        background: #10b981;
-        bottom: 2rem;
-        left: -3rem;
+        width: 20rem;
+        height: 20rem;
+        background: #ff1493;
+        box-shadow: 0 0 50px #ff1493;
+        opacity: 0.4;
+        bottom: -5rem;
+        left: -5rem;
       }
 
       /* Footer */
       footer {
-        border-top: 1px solid rgba(244, 114, 182, 0.3);
-        background: rgba(255, 255, 255, 0.3);
+        border-top: 2px solid #ff00ff;
+        background: rgba(255, 0, 255, 0.15);
+        box-shadow: 0 0 30px #ff00ff;
         backdrop-filter: blur(0.5rem);
         padding: 1.5rem;
         text-align: center;
       }
 
       footer p {
-        color: #6b7280;
+        color: #ffffff;
+        text-shadow: 0 0 5px #ff1493;
         font-size: 0.8rem;
         font-family: 'Poppins', sans-serif;
         margin: 0.25rem 0;

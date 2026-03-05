@@ -203,14 +203,14 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   private setupEnvironment() {
     const envPreset = this.getAttribute('environment') || 'studio';
 
-    // Environment presets
+    // Environment presets - HOT PINK theme
     const presets: Record<string, { color: number; fog: number; lightIntensity: number }> = {
-      studio: { color: 0xfce7f3, fog: 0xfce7f3, lightIntensity: 1.0 },
-      sunset: { color: 0xffe4c4, fog: 0xffcc99, lightIntensity: 0.8 },
-      dawn: { color: 0xe6e6fa, fog: 0xd8bfd8, lightIntensity: 0.9 },
-      night: { color: 0x1a1a2e, fog: 0x16213e, lightIntensity: 0.6 },
-      forest: { color: 0xe8f5e9, fog: 0xc8e6c9, lightIntensity: 0.95 },
-      city: { color: 0xe3f2fd, fog: 0xbbdefb, lightIntensity: 1.1 },
+      studio: { color: 0xff1493, fog: 0xff1493, lightIntensity: 1.2 },
+      hotpink: { color: 0xff00ff, fog: 0xff00ff, lightIntensity: 1.3 },
+      sunset: { color: 0xff1493, fog: 0xff69b4, lightIntensity: 1.0 },
+      dawn: { color: 0xff69b4, fog: 0xffc0cb, lightIntensity: 1.1 },
+      night: { color: 0x8b008b, fog: 0x4b0082, lightIntensity: 0.8 },
+      cyber: { color: 0xff00ff, fog: 0x00ffff, lightIntensity: 1.4 },
     };
 
     const preset = presets[envPreset] || presets.studio;
@@ -285,7 +285,7 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     // Additional ground plane for visual grounding
     const groundGeometry = new THREE.CircleGeometry(4, 64);
     const groundMaterial = new THREE.MeshBasicMaterial({
-      color: 0xfce7f3,
+      color: 0xff1493,
       transparent: true,
       opacity: 0.5,
     });
@@ -360,6 +360,9 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       const center = bbox.getCenter(new THREE.Vector3());
       vrm.scene.position.sub(center.multiplyScalar(scale));
       vrm.scene.position.y += size.y * scale / 2;
+
+      // Rotate to face camera (VRM models typically face +Z, rotate 180 to face camera at +Z)
+      vrm.scene.rotation.y = Math.PI;
 
       // Enable shadows
       vrm.scene.traverse((child: any) => {
