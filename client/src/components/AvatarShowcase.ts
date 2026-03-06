@@ -350,17 +350,21 @@ export class AvatarShowcase extends HTMLElement {
     const controlsUl = document.createElement('ul');
     
     const li1 = document.createElement('li');
-    li1.textContent = 'Drag to rotate';
-    
+    li1.textContent = 'Drag to orbit around Cleetus';
+
     const li2 = document.createElement('li');
-    li2.textContent = 'Scroll to zoom';
-    
+    li2.textContent = 'Scroll to zoom in/out';
+
     const li3 = document.createElement('li');
-    li3.textContent = 'Enjoy the experience';
+    li3.textContent = 'Right-click + drag to pan';
+
+    const li4 = document.createElement('li');
+    li4.textContent = 'Enjoy the experience';
 
     controlsUl.appendChild(li1);
     controlsUl.appendChild(li2);
     controlsUl.appendChild(li3);
+    controlsUl.appendChild(li4);
 
     controlsList.appendChild(controlsH3);
     controlsList.appendChild(controlsUl);
