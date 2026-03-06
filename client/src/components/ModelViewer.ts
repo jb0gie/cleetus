@@ -315,9 +315,15 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
 
     // Adjust camera for mobile (portrait) view
     if (width < height && this.model) {
-      // Move camera closer and more centered for mobile
-      this.camera.position.z = 3;
+      // Move camera lower and closer for mobile to frame Cleetus better
+      this.camera.position.z = 3.2;
       this.camera.position.x = 1;
+      this.camera.position.y = 0.8;
+      this.orbitControls!.target.set(1, 0.8, 0);
+    } else if (this.model) {
+      // Reset to desktop position
+      this.camera.position.set(2, 1.2, 3.5);
+      this.orbitControls!.target.set(1, 1.5, 0);
     }
   }
 
