@@ -316,9 +316,9 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
     // Adjust camera for mobile (portrait) view
     if (width < height && this.model) {
       // Position camera to frame Cleetus properly on mobile
-      // Cleetus walks from x=2 to x=1, so look at x=1.5 (middle)
-      this.camera.fov = 60;
-      this.camera.position.set(1.5, 1.3, 3.5);
+      // Cleetus walks from x=2 to x=1, position camera to see entire path
+      this.camera.fov = 70;
+      this.camera.position.set(0, 1.5, 4);
       this.orbitControls!.target.set(1.5, 1.2, 0);
       this.camera.updateProjectionMatrix();
       this.orbitControls!.update();
@@ -404,8 +404,11 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
 
       // Start with introWalk (play once, then transition to idle)
       if (this.animationClips.has('introWalk')) {
+        console.log('Starting introWalk animation');
         this.playAnimation('introWalk', false);
         this.animationCycle.isPlayingIntro = true;
+      } else {
+        console.log('No introWalk animation found, available:', this.getAvailableAnimations());
       }
 
       // Hide loading
