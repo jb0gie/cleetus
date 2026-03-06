@@ -68,6 +68,11 @@ export class AvatarShowcase extends HTMLElement {
           rgba(0, 0, 0, 0.2) 50%,
           transparent 100%
         );
+        pointer-events: none;
+      }
+
+      .content-side > * {
+        pointer-events: auto;
       }
 
       .content-inner {
@@ -311,6 +316,11 @@ export class AvatarShowcase extends HTMLElement {
             rgba(0, 0, 0, 0.2) 60%,
             transparent 100%
           );
+          pointer-events: none;
+        }
+
+        .content-side > * {
+          pointer-events: auto;
         }
 
         .content-inner {
