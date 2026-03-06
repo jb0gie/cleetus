@@ -313,23 +313,16 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
 
-    // Update orbit controls target tracking for head bone
-    if (this.headBone && this.orbitControls) {
-      const headPos = new THREE.Vector3();
-      this.headBone.getWorldPosition(headPos);
-      // Smoothly interpolate target to head position
-      this.orbitControls.target.lerp(headPos, 0.1);
-    }
-
     // Adjust camera for mobile (portrait) view
     if (width < height && this.model) {
-      // Wider FOV and closer position for mobile
-      this.camera.fov = 60;
-      this.camera.position.z = 3;
+      // Position camera to frame Cleetus properly on mobile
+      this.camera.fov = 55;
+      this.camera.position.set(1, 1.4, 3.2);
       this.camera.updateProjectionMatrix();
     } else if (this.model && width >= height) {
-      // Reset to desktop FOV
+      // Reset to desktop settings
       this.camera.fov = 50;
+      this.camera.position.set(2, 1.2, 3.5);
       this.camera.updateProjectionMatrix();
     }
   }
