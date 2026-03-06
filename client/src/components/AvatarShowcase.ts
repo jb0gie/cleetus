@@ -55,6 +55,7 @@ export class AvatarShowcase extends HTMLElement {
         gap: 0;
         align-items: stretch;
         position: relative;
+        background: transparent;
       }
 
       /* Left side: content */
@@ -64,6 +65,7 @@ export class AvatarShowcase extends HTMLElement {
         justify-content: center;
         padding: 2rem 3rem;
         z-index: 10;
+        background: transparent;
       }
 
       .content-inner {
@@ -185,45 +187,20 @@ export class AvatarShowcase extends HTMLElement {
         align-items: flex-end;
         justify-content: flex-end;
         overflow: hidden;
+        background: transparent;
       }
 
       .viewer-container {
         width: 100%;
         height: 100%;
         position: relative;
+        background: transparent;
       }
 
       vrm-viewer {
         width: 100%;
         height: 100%;
-      }
-
-      /* Decorative elements */
-      .accent-shape {
-        position: absolute;
-        border-radius: 50%;
-        opacity: 0.1;
-        pointer-events: none;
-      }
-
-      .shape-1 {
-        width: 25rem;
-        height: 25rem;
-        background: #ff00ff;
-        box-shadow: 0 0 60px #ff00ff;
-        opacity: 0.4;
-        top: -8rem;
-        right: -8rem;
-      }
-
-      .shape-2 {
-        width: 20rem;
-        height: 20rem;
-        background: #ff1493;
-        box-shadow: 0 0 50px #ff1493;
-        opacity: 0.4;
-        bottom: -5rem;
-        left: -5rem;
+        background: transparent;
       }
 
       /* Footer */
@@ -326,13 +303,6 @@ export class AvatarShowcase extends HTMLElement {
 
     const container = document.createElement('div');
     container.className = 'container';
-
-    // Decorative shapes
-    const shape1 = document.createElement('div');
-    shape1.className = 'accent-shape shape-1';
-    
-    const shape2 = document.createElement('div');
-    shape2.className = 'accent-shape shape-2';
 
     // Main layout
     const mainLayout = document.createElement('div');
@@ -443,8 +413,6 @@ export class AvatarShowcase extends HTMLElement {
     footer.appendChild(footerP1);
     footer.appendChild(footerP2);
 
-    container.appendChild(shape1);
-    container.appendChild(shape2);
     container.appendChild(mainLayout);
     container.appendChild(footer);
 

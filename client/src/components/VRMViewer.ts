@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { VRM, VRMLoaderPlugin } from '@pixiv/three-vrm';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { Sparkles, Grid, SoftShadowMaterial, ProgressiveLightMap } from '@pmndrs/vanilla';
+import { Sparkles } from '@pmndrs/vanilla';
 
 /**
  * VRMViewer Web Component - Enhanced Three.js
@@ -21,7 +21,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   private vrm: VRM | null = null;
   private isLoading = false;
   private orbitControls: OrbitControls | null = null;
-  private shadowPlane: THREE.Mesh | null = null;
   private ambientLight!: THREE.AmbientLight;
   private directionalLight!: THREE.DirectionalLight;
   private animationId: number = 0;
@@ -38,11 +37,9 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
 
   // Drei-vanilla effects
   private sparkles: any = null;
-  private grid: any = null;
-  private accumulativeShadows: any = null;
 
   static get observedAttributes() {
-    return ['model-url', 'environment', 'shadows'];
+    return ['model-url', 'environment'];
   }
 
   constructor() {
@@ -72,10 +69,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       this.renderer.dispose();
     }
     // Clean up drei-vanilla effects
-    if (this.grid?.mesh) {
-      this.grid.mesh.geometry.dispose();
-      (this.grid.mesh.material as THREE.Material).dispose();
-    }
     if (this.sparkles) {
       this.sparkles.geometry.dispose();
       (this.sparkles.material as THREE.Material).dispose();
@@ -89,8 +82,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       this.loadModel();
     } else if (name === 'environment') {
       this.updateEnvironment(newValue || 'studio');
-    } else if (name === 'shadows') {
-      this.updateShadows(newValue !== 'false');
     }
   }
 
@@ -212,9 +203,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     // Environment and lighting
     this.setupEnvironment();
 
-    // Contact shadows
-    this.setupContactShadows();
-
     // Handle window resize with ResizeObserver
     this.resizeObserver = new ResizeObserver(() => {
       this.onWindowResize();
@@ -258,19 +246,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   }
 
   private setupDreiEffects() {
-    // Grid - professional ground plane
-    this.grid = Grid({
-      cellSize: 0.5,
-      cellColor: new THREE.Color('#ff69b4'),
-      sectionColor: new THREE.Color('#ff00ff'),
-      fadeDistance: 15,
-      fadeStrength: 1,
-      followCamera: false,
-      infiniteGrid: true,
-    });
-    this.grid.mesh.position.y = 0;
-    this.scene.add(this.grid.mesh);
-
     // Sparkles - magical particles around the avatar
     this.sparkles = new Sparkles({
       count: 100,
@@ -297,45 +272,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
 
     if (this.directionalLight) {
       this.directionalLight.intensity = lightIntensity[preset] || 1.2;
-    }
-  }
-
-  private setupContactShadows() {
-    const showShadows = this.getAttribute('shadows') !== 'false';
-    if (!showShadows) return;
-
-    // Create shadow plane
-    const planeGeometry = new THREE.PlaneGeometry(10, 10);
-    const planeMaterial = new THREE.ShadowMaterial({
-      opacity: 0.3,
-      color: 0x000000,
-    });
-
-    this.shadowPlane = new THREE.Mesh(planeGeometry, planeMaterial);
-    this.shadowPlane.rotation.x = -Math.PI / 2;
-    this.shadowPlane.position.y = 0;
-    this.shadowPlane.receiveShadow = true;
-    this.scene.add(this.shadowPlane);
-
-    // Additional ground plane for visual grounding
-    const groundGeometry = new THREE.CircleGeometry(4, 64);
-    const groundMaterial = new THREE.MeshBasicMaterial({
-      color: 0xff1493,
-      transparent: true,
-      opacity: 0.5,
-    });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.01;
-    this.scene.add(ground);
-  }
-
-  private updateShadows(enabled: boolean) {
-    if (enabled && !this.shadowPlane) {
-      this.setupContactShadows();
-    } else if (!enabled && this.shadowPlane) {
-      this.scene.remove(this.shadowPlane);
-      this.shadowPlane = null;
     }
   }
 
@@ -467,9 +403,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     }
 
     // Update drei-vanilla effects
-    if (this.grid) {
-      this.grid.update(this.camera);
-    }
     if (this.sparkles) {
       this.sparkles.update(now);
     }
@@ -514,10 +447,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   // Public API for external control
   public setEnvironment(preset: 'studio' | 'sunset' | 'dawn' | 'night' | 'forest' | 'city') {
     this.setAttribute('environment', preset);
-  }
-
-  public setShadows(enabled: boolean) {
-    this.setAttribute('shadows', String(enabled));
   }
 
   public resetCamera() {
