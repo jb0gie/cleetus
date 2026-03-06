@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { VRM, VRMLoaderPlugin } from '@pixiv/three-vrm';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { Sparkles, Grid, SoftShadowMaterial, ProgressiveLightMap } from '@pmndrs/vanilla';
 
 /**
  * VRMViewer Web Component - Enhanced Three.js
@@ -35,6 +36,11 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     nextBlinkTime: this.randomBlinkTime(),
   };
 
+  // Drei-vanilla effects
+  private sparkles: any = null;
+  private grid: any = null;
+  private accumulativeShadows: any = null;
+
   static get observedAttributes() {
     return ['model-url', 'environment', 'shadows'];
   }
@@ -64,6 +70,15 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     }
     if (this.renderer) {
       this.renderer.dispose();
+    }
+    // Clean up drei-vanilla effects
+    if (this.grid?.mesh) {
+      this.grid.mesh.geometry.dispose();
+      (this.grid.mesh.material as THREE.Material).dispose();
+    }
+    if (this.sparkles) {
+      this.sparkles.geometry.dispose();
+      (this.sparkles.material as THREE.Material).dispose();
     }
   }
 
@@ -162,10 +177,10 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    // Scene setup
+    // Scene setup - transparent to show CSS gradient behind
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xfdf6e3);
-    this.scene.fog = new THREE.Fog(0xfdf6e3, 5, 15);
+    this.scene.background = null;
+    this.scene.fog = null;
 
     // Camera setup
     this.camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
@@ -211,30 +226,14 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   }
 
   private setupEnvironment() {
-    const envPreset = this.getAttribute('environment') || 'studio';
-
-    // Environment presets - HOT PINK theme
-    const presets: Record<string, { color: number; fog: number; lightIntensity: number }> = {
-      studio: { color: 0xff1493, fog: 0xff1493, lightIntensity: 1.2 },
-      hotpink: { color: 0xff00ff, fog: 0xff00ff, lightIntensity: 1.3 },
-      sunset: { color: 0xff1493, fog: 0xff69b4, lightIntensity: 1.0 },
-      dawn: { color: 0xff69b4, fog: 0xffc0cb, lightIntensity: 1.1 },
-      night: { color: 0x8b008b, fog: 0x4b0082, lightIntensity: 0.8 },
-      cyber: { color: 0xff00ff, fog: 0x00ffff, lightIntensity: 1.4 },
-    };
-
-    const preset = presets[envPreset] || presets.studio;
-
-    // Apply preset
-    this.scene.background = new THREE.Color(preset.color);
-    this.scene.fog = new THREE.Fog(preset.fog, 5, 15);
+    // Background is transparent to show CSS gradient - no scene.background or fog
 
     // Ambient light
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     this.scene.add(this.ambientLight);
 
     // Main directional light (sun)
-    this.directionalLight = new THREE.DirectionalLight(0xffffff, preset.lightIntensity);
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
     this.directionalLight.position.set(5, 10, 7);
     this.directionalLight.castShadow = true;
     this.directionalLight.shadow.mapSize.width = 2048;
@@ -253,25 +252,51 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     const rimLight = new THREE.DirectionalLight(0xffffff, 0.2);
     rimLight.position.set(0, 5, -8);
     this.scene.add(rimLight);
+
+    // Add drei-vanilla effects
+    this.setupDreiEffects();
+  }
+
+  private setupDreiEffects() {
+    // Grid - professional ground plane
+    this.grid = Grid({
+      cellSize: 0.5,
+      cellColor: new THREE.Color('#ff69b4'),
+      sectionColor: new THREE.Color('#ff00ff'),
+      fadeDistance: 15,
+      fadeStrength: 1,
+      followCamera: false,
+      infiniteGrid: true,
+    });
+    this.grid.mesh.position.y = 0;
+    this.scene.add(this.grid.mesh);
+
+    // Sparkles - magical particles around the avatar
+    this.sparkles = new Sparkles({
+      count: 100,
+      scale: 3,
+      color: new THREE.Color('#ffff00'),
+      speed: 0.5,
+      opacity: 0.8,
+      size: 0.5,
+    });
+    this.sparkles.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.scene.add(this.sparkles);
   }
 
   private updateEnvironment(preset: string) {
-    const presets: Record<string, { color: number; fog: number; lightIntensity: number }> = {
-      studio: { color: 0xfdf6e3, fog: 0xfdf6e3, lightIntensity: 1.0 },
-      sunset: { color: 0xffe4c4, fog: 0xffcc99, lightIntensity: 0.8 },
-      dawn: { color: 0xe6e6fa, fog: 0xd8bfd8, lightIntensity: 0.9 },
-      night: { color: 0x1a1a2e, fog: 0x16213e, lightIntensity: 0.6 },
-      forest: { color: 0xe8f5e9, fog: 0xc8e6c9, lightIntensity: 0.95 },
-      city: { color: 0xe3f2fd, fog: 0xbbdefb, lightIntensity: 1.1 },
+    // No background/fog updates needed - transparent scene shows CSS gradient
+    const lightIntensity: Record<string, number> = {
+      studio: 1.2,
+      sunset: 1.0,
+      dawn: 1.1,
+      night: 0.6,
+      forest: 0.95,
+      city: 1.1,
     };
 
-    const config = presets[preset] || presets.studio;
-
-    this.scene.background = new THREE.Color(config.color);
-    this.scene.fog = new THREE.Fog(config.fog, 5, 15);
-
     if (this.directionalLight) {
-      this.directionalLight.intensity = config.lightIntensity;
+      this.directionalLight.intensity = lightIntensity[preset] || 1.2;
     }
   }
 
@@ -439,6 +464,14 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     if (this.vrm) {
       this.vrm.update(delta);
       this.updateBlink(delta);
+    }
+
+    // Update drei-vanilla effects
+    if (this.grid) {
+      this.grid.update(this.camera);
+    }
+    if (this.sparkles) {
+      this.sparkles.update(now);
     }
 
     // Render
