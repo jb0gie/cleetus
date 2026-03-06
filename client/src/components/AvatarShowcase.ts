@@ -1,4 +1,4 @@
-import './VRMViewer';
+import './ModelViewer';
 
 /**
  * AvatarShowcase Component - Mobile-First Design
@@ -7,9 +7,6 @@ import './VRMViewer';
  * Creates a dynamic, playful composition that works beautifully on mobile
  */
 export class AvatarShowcase extends HTMLElement {
-  // Use local Cleetus.vrm file
-  private modelUrl = '/Cleetus.vrm';
-
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -215,7 +212,7 @@ export class AvatarShowcase extends HTMLElement {
         background: transparent;
       }
 
-      vrm-viewer {
+      model-viewer {
         width: 100%;
         height: 100%;
         background: transparent;
@@ -259,7 +256,7 @@ export class AvatarShowcase extends HTMLElement {
           inset: 0;
         }
 
-        vrm-viewer {
+        model-viewer {
           position: absolute;
           inset: 0;
         }
@@ -398,7 +395,9 @@ export class AvatarShowcase extends HTMLElement {
     infoGrid.appendChild(creatorCard);
     infoGrid.appendChild(licenseCard);
 
-    // Animation selector
+    // Animation selector (disabled - HYPERIGmk2 animations incompatible with Cleetus)
+    // Requires proper VRM retargeting which needs source/target skeleton alignment
+    /*
     const animCard = document.createElement('div');
     animCard.className = 'info-card';
     animCard.style.gridColumn = 'span 2';
@@ -410,23 +409,17 @@ export class AvatarShowcase extends HTMLElement {
     animSelect.innerHTML = `
       <option value="IdleLoop">Idle Loop</option>
       <option value="DanceLoop">Dance Loop</option>
-      <option value="WalkLoop">Walk Loop</option>
-      <option value="RunAnime">Run</option>
-      <option value="JumpStart">Jump Start</option>
-      <option value="JumpLoop">Jump Loop</option>
-      <option value="JumpLand">Jump Land</option>
-      <option value="Victory">Victory</option>
-      <option value="Backflip">Backflip</option>
     `;
     animSelect.addEventListener('change', (e) => {
-      const vrmViewer = shadowRoot.querySelector('vrm-viewer') as any;
-      if (vrmViewer?.playAnimation) {
-        vrmViewer.playAnimation((e.target as HTMLSelectElement).value);
+      const modelViewer = shadowRoot.querySelector('model-viewer') as any;
+      if (modelViewer?.playAnimation) {
+        modelViewer.playAnimation((e.target as HTMLSelectElement).value);
       }
     });
     animCard.appendChild(animLabel);
     animCard.appendChild(animSelect);
     infoGrid.appendChild(animCard);
+    */
 
     contentInner.appendChild(h1);
     contentInner.appendChild(subtitle);
@@ -443,10 +436,8 @@ export class AvatarShowcase extends HTMLElement {
     const viewerContainer = document.createElement('div');
     viewerContainer.className = 'viewer-container';
 
-    const vrmViewer = document.createElement('vrm-viewer');
-    vrmViewer.setAttribute('model-url', this.modelUrl);
-
-    viewerContainer.appendChild(vrmViewer);
+    const modelViewer = document.createElement('model-viewer');
+    viewerContainer.appendChild(modelViewer);
     viewerSide.appendChild(viewerContainer);
 
     mainLayout.appendChild(contentSide);
