@@ -9,10 +9,9 @@ import { Sparkles } from '@pmndrs/vanilla';
  *
  * Features:
  * - OrbitControls for smooth camera interaction
- * - Soft shadows for realistic grounding
- * - Environment lighting
- * - Automatic avatar positioning
- * - VRM animation and rendering
+ * - VRM animation with Hyperfy-style retargeting
+ * - Auto-blink expressions
+ * - Sparkle effects
  */
 export class VRMViewer extends HTMLElement implements HTMLElement {
   private scene!: THREE.Scene;
@@ -43,6 +42,78 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   private currentAnimation: THREE.AnimationAction | null = null;
   private animationClips: Map<string, THREE.AnimationClip> = new Map();
   private isAnimationLoaded = false;
+  private animationSourceGLB: any = null;
+  private sourceSkeleton: THREE.Skeleton | null = null;
+  private targetSkeleton: THREE.Skeleton | null = null;
+
+  // Bone name mapping: HYPERIGmk2 (with dots) -> Cleetus (no dots, suffix)
+  private boneNameMap: Record<string, string> = {
+    // Root
+    'root': 'root',
+    'hips': 'hips',
+    // Spine
+    'spine': 'spine',
+    'chest': 'chest',
+    'upperchest': 'upperChest',
+    // Neck & Head
+    'neck': 'neck',
+    'head': 'head',
+    // Eyes
+    'eye.l': 'eyeL',
+    'eye.r': 'eyeR',
+    // Left arm (HYPERIGmk2: upper_arm.L -> Cleetus: upper_armL)
+    'shoulder.l': 'shoulderL',
+    'upper_arm.l': 'upper_armL',
+    'lower_arm.l': 'lower_armL',
+    'hand.l': 'handL',
+    // Right arm
+    'shoulder.r': 'shoulderR',
+    'upper_arm.r': 'upper_armR',
+    'lower_arm.r': 'lower_armR',
+    'hand.r': 'handR',
+    // Left leg
+    'upper_leg.l': 'upper_legL',
+    'lower_leg.l': 'lower_legL',
+    'foot.l': 'footL',
+    'toes.l': 'toesL',
+    // Right leg
+    'upper_leg.r': 'upper_legR',
+    'lower_leg.r': 'lower_legR',
+    'foot.r': 'footR',
+    'toes.r': 'toesR',
+    // Left fingers
+    'thumb_proximal.l': 'thumb_proximalL',
+    'thumb_intermediate.l': 'thumb_intermediateL',
+    'thumb_distal.l': 'thumb_distalL',
+    'index_proximal.l': 'index_proximalL',
+    'index_intermediate.l': 'index_intermediateL',
+    'index_distal.l': 'index_distalL',
+    'middle_proximal.l': 'middle_proximalL',
+    'middle_intermediate.l': 'middle_intermediateL',
+    'middle_distal.l': 'middle_distalL',
+    'ring_proximal.l': 'ring_proximalL',
+    'ring_intermediate.l': 'ring_intermediateL',
+    'ring_distal.l': 'ring_distalL',
+    'little_proximal.l': 'little_proximalL',
+    'little_intermediate.l': 'little_intermediateL',
+    'little_distal.l': 'little_distalL',
+    // Right fingers
+    'thumb_proximal.r': 'thumb_proximalR',
+    'thumb_intermediate.r': 'thumb_intermediateR',
+    'thumb_distal.r': 'thumb_distalR',
+    'index_proximal.r': 'index_proximalR',
+    'index_intermediate.r': 'index_intermediateR',
+    'index_distal.r': 'index_distalR',
+    'middle_proximal.r': 'middle_proximalR',
+    'middle_intermediate.r': 'middle_intermediateR',
+    'middle_distal.r': 'middle_distalR',
+    'ring_proximal.r': 'ring_proximalR',
+    'ring_intermediate.r': 'ring_intermediateR',
+    'ring_distal.r': 'ring_distalR',
+    'little_proximal.r': 'little_proximalR',
+    'little_intermediate.r': 'little_intermediateR',
+    'little_distal.r': 'little_distalR',
+  };
 
   static get observedAttributes() {
     return ['model-url', 'environment', 'animation'];
@@ -74,7 +145,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     if (this.renderer) {
       this.renderer.dispose();
     }
-    // Clean up drei-vanilla effects
     if (this.sparkles) {
       this.sparkles.geometry.dispose();
       (this.sparkles.material as THREE.Material).dispose();
@@ -181,9 +251,9 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     this.scene.background = null;
     this.scene.fog = null;
 
-    // Camera setup - positioned behind avatar (VRM faces +Z, so camera at -Z)
+    // Camera setup
     this.camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-    this.camera.position.set(0, 1.2, -2.5);
+    this.camera.position.set(0, 1.2, 2.5);
 
     // Renderer setup
     this.renderer = new THREE.WebGLRenderer({
@@ -222,8 +292,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   }
 
   private setupEnvironment() {
-    // Background is transparent to show CSS gradient - no scene.background or fog
-
     // Ambient light
     this.ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     this.scene.add(this.ambientLight);
@@ -268,7 +336,6 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   }
 
   private updateEnvironment(preset: string) {
-    // No background/fog updates needed - transparent scene shows CSS gradient
     const lightIntensity: Record<string, number> = {
       studio: 1.2,
       sunset: 1.0,
@@ -344,8 +411,8 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       vrm.scene.position.sub(center.multiplyScalar(scale));
       vrm.scene.position.y += size.y * scale / 2;
 
-      // VRM faces +Z by default - camera is positioned at +Z looking at origin
-      // So avatar faces away from camera. We'll position camera behind avatar instead.
+      // Rotate to face camera
+      vrm.scene.rotation.y = Math.PI;
 
       // Enable shadows
       vrm.scene.traverse((child: any) => {
@@ -358,18 +425,21 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       // Add to scene
       this.scene.add(vrm.scene);
 
+      // Get target skeleton for animations
+      this.targetSkeleton = this.getSkeletonFromScene(vrm.scene);
+
       // Hide loading
       if (loadingDiv) {
         loadingDiv.style.display = 'none';
       }
 
-      // Reset camera to view the model
+      // Reset camera
       if (this.orbitControls) {
         this.orbitControls.target.set(0, size.y * scale / 2, 0);
         this.orbitControls.update();
       }
 
-      // Reset blink state for new model
+      // Reset blink state
       this.blinkState.isBlinking = false;
       this.blinkState.blinkProgress = 0;
       this.blinkState.blinkTimer = 0;
@@ -389,9 +459,8 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
 
     this.isLoading = false;
 
-    // Note: HYPERIGmk2 animations are incompatible with Cleetus
-    // They were authored for a different VRM with different bone orientations
-    // this.loadAnimations();
+    // Load HYPERIGmk2 animations
+    this.loadAnimations();
   }
 
   private async loadAnimations() {
@@ -400,22 +469,70 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       const gltf = await loader.loadAsync('/HYPERIGmk2.glb');
 
       if (gltf.animations && gltf.animations.length > 0) {
-        // Store all animation clips by name
+        this.animationSourceGLB = gltf;
+        this.sourceSkeleton = this.getSkeletonFromScene(gltf.scene);
+
+        // Store original animations (bone names already match)
         gltf.animations.forEach((clip) => {
-          // Extract clean name from "VRM|AnimationName@frame"
           const cleanName = clip.name.replace(/^VRM\|/, '').replace(/@\d+$/, '');
-          this.animationClips.set(cleanName, clip);
+          // Filter out scale tracks but keep original
+          const filteredClip = this.filterScaleTracks(clip);
+          this.animationClips.set(cleanName, filteredClip);
         });
 
-        console.log(`Loaded ${this.animationClips.size} animations`);
+        console.log(`Loaded and retargeted ${this.animationClips.size} animations`);
         this.isAnimationLoaded = true;
 
-        // Play default idle animation
+        // Auto-play idle
         this.playAnimation('IdleLoop');
       }
     } catch (error) {
       console.error('Failed to load animations:', error);
     }
+  }
+
+  // Filter scale and remap bone names
+  private filterScaleTracks(sourceClip: THREE.AnimationClip): THREE.AnimationClip {
+    const newTracks: THREE.KeyframeTrack[] = [];
+
+    for (const track of sourceClip.tracks) {
+      const parts = track.name.split('.');
+      const sourceBoneName = parts[0].toLowerCase();
+      const propertyName = parts[1];
+
+      // Skip scale tracks
+      if (propertyName === 'scale') continue;
+
+      // Map bone name
+      const targetBoneName = this.boneNameMap[sourceBoneName] || parts[0];
+
+      // Clone track with remapped name
+      if (track instanceof THREE.QuaternionKeyframeTrack) {
+        newTracks.push(new THREE.QuaternionKeyframeTrack(
+          `${targetBoneName}.quaternion`,
+          track.times,
+          track.values.slice()
+        ));
+      } else if (track instanceof THREE.VectorKeyframeTrack) {
+        newTracks.push(new THREE.VectorKeyframeTrack(
+          `${targetBoneName}.position`,
+          track.times,
+          track.values.slice()
+        ));
+      }
+    }
+
+    return new THREE.AnimationClip(sourceClip.name, sourceClip.duration, newTracks);
+  }
+
+  private getSkeletonFromScene(scene: THREE.Object3D): THREE.Skeleton | null {
+    let skeleton: THREE.Skeleton | null = null;
+    scene.traverse((obj: any) => {
+      if (obj.isSkinnedMesh && obj.skeleton) {
+        skeleton = obj.skeleton;
+      }
+    });
+    return skeleton;
   }
 
   public playAnimation(name: string) {
@@ -438,9 +555,9 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       this.animationMixer = new THREE.AnimationMixer(this.vrm.scene);
     }
 
-    // Play new animation
+    // Play animation
     this.currentAnimation = this.animationMixer.clipAction(clip);
-    this.currentAnimation.play();
+    this.currentAnimation.reset().play();
   }
 
   private lastFrameTime = 0;
@@ -457,15 +574,15 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       this.orbitControls.update();
     }
 
-    // Update VRM animation
+    // Update animation mixer FIRST (before VRM update)
+    if (this.animationMixer) {
+      this.animationMixer.update(delta);
+    }
+
+    // Update VRM (after mixer, so expressions work but don't override animations)
     if (this.vrm) {
       this.vrm.update(delta);
       this.updateBlink(delta);
-    }
-
-    // Update animation mixer
-    if (this.animationMixer) {
-      this.animationMixer.update(delta);
     }
 
     // Update drei-vanilla effects
@@ -517,7 +634,7 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
 
   public resetCamera() {
     if (this.orbitControls) {
-      this.camera.position.set(0, 1.2, -2.5);
+      this.camera.position.set(0, 1.2, 2.5);
       this.orbitControls.target.set(0, 0.8, 0);
       this.orbitControls.update();
     }
