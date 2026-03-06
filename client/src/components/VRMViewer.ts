@@ -38,8 +38,14 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   // Drei-vanilla effects
   private sparkles: any = null;
 
+  // Animation state
+  private animationMixer: THREE.AnimationMixer | null = null;
+  private currentAnimation: THREE.AnimationAction | null = null;
+  private animationClips: Map<string, THREE.AnimationClip> = new Map();
+  private isAnimationLoaded = false;
+
   static get observedAttributes() {
-    return ['model-url', 'environment'];
+    return ['model-url', 'environment', 'animation'];
   }
 
   constructor() {
@@ -82,6 +88,8 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       this.loadModel();
     } else if (name === 'environment') {
       this.updateEnvironment(newValue || 'studio');
+    } else if (name === 'animation') {
+      this.playAnimation(newValue);
     }
   }
 
@@ -380,6 +388,58 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     }
 
     this.isLoading = false;
+
+    // Load animations after VRM is loaded
+    this.loadAnimations();
+  }
+
+  private async loadAnimations() {
+    try {
+      const loader = new GLTFLoader();
+      const gltf = await loader.loadAsync('/HYPERIGmk2.glb');
+
+      if (gltf.animations && gltf.animations.length > 0) {
+        // Store all animation clips by name
+        gltf.animations.forEach((clip) => {
+          // Extract clean name from "VRM|AnimationName@frame"
+          const cleanName = clip.name.replace(/^VRM\|/, '').replace(/@\d+$/, '');
+          this.animationClips.set(cleanName, clip);
+        });
+
+        console.log(`Loaded ${this.animationClips.size} animations`);
+        this.isAnimationLoaded = true;
+
+        // Play default idle animation
+        this.playAnimation('IdleLoop');
+      }
+    } catch (error) {
+      console.error('Failed to load animations:', error);
+    }
+  }
+
+  public playAnimation(name: string) {
+    if (!this.vrm || !this.isAnimationLoaded) return;
+
+    const clip = this.animationClips.get(name);
+    if (!clip) {
+      console.warn(`Animation not found: ${name}`);
+      return;
+    }
+
+    // Stop current animation
+    if (this.currentAnimation) {
+      this.currentAnimation.stop();
+      this.currentAnimation = null;
+    }
+
+    // Create mixer if needed
+    if (!this.animationMixer) {
+      this.animationMixer = new THREE.AnimationMixer(this.vrm.scene);
+    }
+
+    // Play new animation
+    this.currentAnimation = this.animationMixer.clipAction(clip);
+    this.currentAnimation.play();
   }
 
   private lastFrameTime = 0;
@@ -400,6 +460,11 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     if (this.vrm) {
       this.vrm.update(delta);
       this.updateBlink(delta);
+    }
+
+    // Update animation mixer
+    if (this.animationMixer) {
+      this.animationMixer.update(delta);
     }
 
     // Update drei-vanilla effects
@@ -455,6 +520,14 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       this.orbitControls.target.set(0, 0.8, 0);
       this.orbitControls.update();
     }
+  }
+
+  public getAvailableAnimations(): string[] {
+    return Array.from(this.animationClips.keys()).sort();
+  }
+
+  public setAnimation(name: string) {
+    this.setAttribute('animation', name);
   }
 }
 

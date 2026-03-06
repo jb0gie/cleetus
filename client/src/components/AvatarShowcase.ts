@@ -180,6 +180,24 @@ export class AvatarShowcase extends HTMLElement {
         font-family: 'Poppins', sans-serif;
       }
 
+      .anim-select {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid #ff00ff;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        color: #ffffff;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.85rem;
+        cursor: pointer;
+        outline: none;
+      }
+
+      .anim-select option {
+        background: #1a1a2e;
+        color: #ffffff;
+      }
+
       /* Right side: avatar viewer */
       .viewer-side {
         position: relative;
@@ -379,6 +397,37 @@ export class AvatarShowcase extends HTMLElement {
 
     infoGrid.appendChild(creatorCard);
     infoGrid.appendChild(licenseCard);
+
+    // Animation selector
+    const animCard = document.createElement('div');
+    animCard.className = 'info-card';
+    animCard.style.gridColumn = 'span 2';
+    const animLabel = document.createElement('div');
+    animLabel.className = 'info-label';
+    animLabel.textContent = 'Animation';
+    const animSelect = document.createElement('select');
+    animSelect.className = 'anim-select';
+    animSelect.innerHTML = `
+      <option value="IdleLoop">Idle Loop</option>
+      <option value="DanceLoop">Dance Loop</option>
+      <option value="WalkLoop">Walk Loop</option>
+      <option value="RunAnime">Run</option>
+      <option value="JumpStart">Jump Start</option>
+      <option value="JumpLoop">Jump Loop</option>
+      <option value="JumpLand">Jump Land</option>
+      <option value="Wave">Wave</option>
+      <option value="Victory">Victory</option>
+      <option value="Backflip">Backflip</option>
+    `;
+    animSelect.addEventListener('change', (e) => {
+      const vrmViewer = shadowRoot.querySelector('vrm-viewer') as any;
+      if (vrmViewer?.playAnimation) {
+        vrmViewer.playAnimation((e.target as HTMLSelectElement).value);
+      }
+    });
+    animCard.appendChild(animLabel);
+    animCard.appendChild(animSelect);
+    infoGrid.appendChild(animCard);
 
     contentInner.appendChild(h1);
     contentInner.appendChild(subtitle);
