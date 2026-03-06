@@ -44,7 +44,7 @@ export class AvatarShowcase extends HTMLElement {
         overflow: hidden;
       }
 
-      /* Main layout: content on left, avatar viewer on right */
+      /* Main layout: 3D as full background, content overlaid */
       .main-layout {
         flex: 1;
         display: grid;
@@ -55,14 +55,19 @@ export class AvatarShowcase extends HTMLElement {
         background: transparent;
       }
 
-      /* Left side: content */
+      /* Left side: content with subtle backdrop */
       .content-side {
         display: flex;
         flex-direction: column;
         justify-content: center;
         padding: 2rem 3rem;
         z-index: 10;
-        background: transparent;
+        background: linear-gradient(
+          to right,
+          rgba(0, 0, 0, 0.5) 0%,
+          rgba(0, 0, 0, 0.2) 50%,
+          transparent 100%
+        );
       }
 
       .content-inner {
@@ -218,6 +223,27 @@ export class AvatarShowcase extends HTMLElement {
         background: transparent;
       }
 
+      /* Desktop: 3D as full background */
+      @media (min-width: 1025px) {
+        .viewer-side {
+          position: fixed;
+          inset: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 1;
+        }
+
+        .main-layout {
+          position: relative;
+          z-index: 10;
+        }
+
+        footer {
+          position: relative;
+          z-index: 10;
+        }
+      }
+
       /* Footer */
       footer {
         border-top: 2px solid #ff00ff;
@@ -238,6 +264,11 @@ export class AvatarShowcase extends HTMLElement {
 
       /* Mobile: VRM as full background, text overlaid */
       @media (max-width: 1024px) {
+        .container {
+          position: relative;
+          min-height: 100vh;
+        }
+
         .main-layout {
           display: block;
           position: relative;
@@ -245,15 +276,18 @@ export class AvatarShowcase extends HTMLElement {
         }
 
         .viewer-side {
-          position: absolute;
+          position: fixed;
           inset: 0;
           z-index: 1;
-          min-height: 100vh;
+          width: 100vw;
+          height: 100vh;
         }
 
         .viewer-container {
           position: absolute;
           inset: 0;
+          width: 100%;
+          height: 100%;
         }
 
         model-viewer {
@@ -272,9 +306,9 @@ export class AvatarShowcase extends HTMLElement {
           padding-bottom: 6rem;
           background: linear-gradient(
             to top,
-            rgba(0, 0, 0, 0.8) 0%,
-            rgba(0, 0, 0, 0.4) 40%,
-            rgba(0, 0, 0, 0.1) 70%,
+            rgba(0, 0, 0, 0.9) 0%,
+            rgba(0, 0, 0, 0.6) 30%,
+            rgba(0, 0, 0, 0.2) 60%,
             transparent 100%
           );
         }
@@ -286,6 +320,11 @@ export class AvatarShowcase extends HTMLElement {
 
         h1 {
           font-size: 3rem;
+        }
+
+        footer {
+          position: relative;
+          z-index: 10;
         }
       }
 

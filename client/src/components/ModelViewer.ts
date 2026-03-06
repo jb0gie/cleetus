@@ -313,20 +313,30 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
 
-    // Adjust camera for mobile (portrait) view
-    if (width < height && this.model) {
-      // Position camera to frame Cleetus properly on mobile
-      // Cleetus walks from x=2 to x=1, position camera to see entire path
-      this.camera.fov = 70;
-      this.camera.position.set(0, 1.5, 4);
-      this.orbitControls!.target.set(1.5, 1.2, 0);
+    // Detect device type and adjust camera accordingly
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isPortrait = width < height;
+    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+
+    if (this.model) {
+      if (isMobile || isTouchDevice || (isPortrait && width < 768)) {
+        // Mobile/tablet portrait view
+        this.camera.fov = 70;
+        this.camera.position.set(0, 1.5, 4);
+        this.orbitControls!.target.set(1.5, 1.2, 0);
+      } else if (isPortrait) {
+        // Desktop portrait (tall window)
+        this.camera.fov = 60;
+        this.camera.position.set(1, 1.4, 3.5);
+        this.orbitControls!.target.set(1, 1.3, 0);
+      } else {
+        // Desktop landscape
+        this.camera.fov = 50;
+        this.camera.position.set(2, 1.2, 3.5);
+        this.orbitControls!.target.set(1, 1.5, 0);
+      }
       this.camera.updateProjectionMatrix();
       this.orbitControls!.update();
-    } else if (this.model && width >= height) {
-      // Reset to desktop settings
-      this.camera.fov = 50;
-      this.camera.position.set(2, 1.2, 3.5);
-      this.camera.updateProjectionMatrix();
     }
   }
 
