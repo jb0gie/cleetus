@@ -312,6 +312,13 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
+
+    // Adjust camera for mobile (portrait) view
+    if (width < height && this.model) {
+      // Move camera closer and more centered for mobile
+      this.camera.position.z = 3;
+      this.camera.position.x = 1;
+    }
   }
 
   private async loadModel() {
