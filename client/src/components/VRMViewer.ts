@@ -26,6 +26,15 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   private animationId: number = 0;
   private resizeObserver: ResizeObserver | null = null;
 
+  // Auto-blink state
+  private blinkState = {
+    isBlinking: false,
+    blinkProgress: 0,
+    blinkDuration: 0.15,
+    blinkTimer: 0,
+    nextBlinkTime: this.randomBlinkTime(),
+  };
+
   static get observedAttributes() {
     return ['model-url', 'environment', 'shadows'];
   }
@@ -43,6 +52,7 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
   }
 
   disconnectedCallback() {
+    this.lastFrameTime = 0;
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
@@ -344,7 +354,11 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       // Remove old VRM if exists
       if (this.vrm) {
         this.scene.remove(this.vrm.scene);
-        // Note: VRM doesn't have dispose method
+        this.vrm = null;
+        this.blinkState.isBlinking = false;
+        this.blinkState.blinkProgress = 0;
+        this.blinkState.blinkTimer = 0;
+        this.blinkState.nextBlinkTime = this.randomBlinkTime();
       }
 
       this.vrm = vrm;
@@ -386,6 +400,12 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
         this.orbitControls.update();
       }
 
+      // Reset blink state for new model
+      this.blinkState.isBlinking = false;
+      this.blinkState.blinkProgress = 0;
+      this.blinkState.blinkTimer = 0;
+      this.blinkState.nextBlinkTime = this.randomBlinkTime();
+
     } catch (error) {
       console.error('Failed to load VRM model:', error);
       if (loadingDiv) {
@@ -401,8 +421,14 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     this.isLoading = false;
   }
 
+  private lastFrameTime = 0;
+
   private animationLoop = (): void => {
     this.animationId = requestAnimationFrame(this.animationLoop);
+
+    const now = performance.now() / 1000;
+    const delta = this.lastFrameTime ? now - this.lastFrameTime : 0.016;
+    this.lastFrameTime = now;
 
     // Update orbit controls with damping
     if (this.orbitControls) {
@@ -411,13 +437,46 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
 
     // Update VRM animation
     if (this.vrm) {
-      const delta = 0.016; // ~60fps
       this.vrm.update(delta);
+      this.updateBlink(delta);
     }
 
     // Render
     this.renderer.render(this.scene, this.camera);
   };
+
+  private randomBlinkTime(): number {
+    return Math.random() * 3 + 2;
+  }
+
+  private updateBlink(delta: number): void {
+    if (!this.vrm?.expressionManager) return;
+
+    const em = this.vrm.expressionManager;
+    const state = this.blinkState;
+
+    state.blinkTimer += delta;
+
+    if (state.isBlinking) {
+      state.blinkProgress += delta / state.blinkDuration;
+
+      if (state.blinkProgress >= 1) {
+        state.isBlinking = false;
+        state.blinkProgress = 0;
+        state.blinkTimer = 0;
+        state.nextBlinkTime = this.randomBlinkTime();
+      }
+    } else if (state.blinkTimer >= state.nextBlinkTime) {
+      state.isBlinking = true;
+      state.blinkProgress = 0;
+    }
+
+    const value = state.isBlinking
+      ? Math.sin(state.blinkProgress * Math.PI)
+      : 0;
+
+    em.setValue('blink', value);
+  }
 
   // Public API for external control
   public setEnvironment(preset: 'studio' | 'sunset' | 'dawn' | 'night' | 'forest' | 'city') {

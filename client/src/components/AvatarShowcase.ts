@@ -62,12 +62,13 @@ export class AvatarShowcase extends HTMLElement {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding: 2rem;
+        padding: 2rem 3rem;
         z-index: 10;
       }
 
       .content-inner {
         max-width: 28rem;
+        margin: 0 auto;
       }
 
       h1 {
@@ -243,105 +244,81 @@ export class AvatarShowcase extends HTMLElement {
         margin: 0.25rem 0;
       }
 
-      /* Mobile responsiveness */
+      /* Mobile: VRM as full background, text overlaid */
       @media (max-width: 1024px) {
         .main-layout {
-          grid-template-columns: 1fr;
-        }
-
-        .content-side {
-          padding: 2rem 1.5rem;
-          justify-content: flex-start;
-          padding-top: 3rem;
+          display: block;
+          position: relative;
+          min-height: 100vh;
         }
 
         .viewer-side {
-          min-height: 24rem;
-          align-items: center;
-          justify-content: center;
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          min-height: 100vh;
+        }
+
+        .viewer-container {
+          position: absolute;
+          inset: 0;
+        }
+
+        vrm-viewer {
+          position: absolute;
+          inset: 0;
+        }
+
+        .content-side {
+          position: relative;
+          z-index: 10;
+          min-height: 100vh;
+          justify-content: flex-end;
+          padding: 2rem;
+          padding-bottom: 6rem;
+          background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.8) 0%,
+            rgba(0, 0, 0, 0.4) 40%,
+            rgba(0, 0, 0, 0.1) 70%,
+            transparent 100%
+          );
+        }
+
+        .content-inner {
+          max-width: 100%;
+          margin: 0;
+        }
+
+        h1 {
+          font-size: 3rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .content-side {
+          padding: 1.5rem;
+          padding-bottom: 5rem;
         }
 
         h1 {
           font-size: 2.5rem;
         }
 
-        .content-inner {
-          max-width: 100%;
-        }
-      }
-
-      @media (max-width: 640px) {
-        .container {
-          min-height: auto;
-        }
-
-        .main-layout {
-          min-height: auto;
-        }
-
-        .content-side {
-          padding: 1.5rem 1rem;
-          padding-top: 2rem;
-        }
-
-        h1 {
-          font-size: 2rem;
-          margin-bottom: 0.5rem;
-        }
-
         .subtitle {
-          font-size: 0.9rem;
-          margin-bottom: 1rem;
+          font-size: 1rem;
         }
 
         .description {
-          font-size: 0.85rem;
-          margin-bottom: 1.5rem;
-        }
-
-        .viewer-side {
-          min-height: 18rem;
-        }
-
-        .info-grid {
-          grid-template-columns: 1fr;
-          gap: 0.75rem;
-        }
-
-        .info-card {
-          padding: 0.75rem;
-        }
-
-        .info-label {
-          font-size: 0.65rem;
-        }
-
-        .info-value {
-          font-size: 0.85rem;
+          font-size: 0.9rem;
         }
 
         .controls-list {
-          padding: 1rem;
-          margin-bottom: 1rem;
+          background: rgba(255, 0, 255, 0.3);
         }
 
-        .controls-list h3 {
-          font-size: 0.75rem;
-          margin-bottom: 0.75rem;
-        }
-
-        .controls-list li {
-          font-size: 0.8rem;
-          margin-bottom: 0.5rem;
-          padding-left: 1.25rem;
-        }
-
-        footer {
-          padding: 1rem;
-        }
-
-        footer p {
-          font-size: 0.7rem;
+        .info-card {
+          background: rgba(255, 0, 255, 0.3);
         }
       }
     `;
