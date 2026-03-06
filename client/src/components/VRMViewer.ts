@@ -181,9 +181,9 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
     this.scene.background = null;
     this.scene.fog = null;
 
-    // Camera setup
+    // Camera setup - positioned behind avatar (VRM faces +Z, so camera at -Z)
     this.camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-    this.camera.position.set(0, 1.2, 2.5);
+    this.camera.position.set(0, 1.2, -2.5);
 
     // Renderer setup
     this.renderer = new THREE.WebGLRenderer({
@@ -344,8 +344,8 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
       vrm.scene.position.sub(center.multiplyScalar(scale));
       vrm.scene.position.y += size.y * scale / 2;
 
-      // Rotate to face camera (VRM models typically face +Z, rotate 180 to face camera at +Z)
-      vrm.scene.rotation.y = Math.PI;
+      // VRM faces +Z by default - camera is positioned at +Z looking at origin
+      // So avatar faces away from camera. We'll position camera behind avatar instead.
 
       // Enable shadows
       vrm.scene.traverse((child: any) => {
@@ -389,8 +389,9 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
 
     this.isLoading = false;
 
-    // Load animations after VRM is loaded
-    this.loadAnimations();
+    // Note: HYPERIGmk2 animations are incompatible with Cleetus
+    // They were authored for a different VRM with different bone orientations
+    // this.loadAnimations();
   }
 
   private async loadAnimations() {
@@ -516,7 +517,7 @@ export class VRMViewer extends HTMLElement implements HTMLElement {
 
   public resetCamera() {
     if (this.orbitControls) {
-      this.camera.position.set(0, 1.2, 2.5);
+      this.camera.position.set(0, 1.2, -2.5);
       this.orbitControls.target.set(0, 0.8, 0);
       this.orbitControls.update();
     }
