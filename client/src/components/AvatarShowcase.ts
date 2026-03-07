@@ -382,35 +382,35 @@ export class AvatarShowcase extends HTMLElement {
     contentInner.className = 'content-inner';
 
     const h1 = document.createElement('h1');
-    h1.textContent = 'Cleetus';
+    h1.textContent = "Hey, I'm Cleetus! 🤡";
 
     const subtitle = document.createElement('div');
     subtitle.className = 'subtitle';
-    subtitle.textContent = 'Interactive 3D Avatar';
+    subtitle.textContent = 'Escaped from SpiceX, now vibing in 3D';
 
     const description = document.createElement('p');
     description.className = 'description';
-    description.textContent = 'Meet Cleetus, a unique avatar ready to interact with you. Rotate, zoom, and explore every detail in stunning 3D.';
+    description.textContent = "Hey there! I'm Cleetus — a pink demi-humanoid created by Schwepe, rescued by b0gie from the SpiceX facility 👀. Now I'm just chillin' and helping out where I can. Take me for a spin, explore every angle — just don't make it weird, okay? Actually... make it weird. Life's too short.";
 
     const controlsList = document.createElement('div');
     controlsList.className = 'controls-list';
 
     const controlsH3 = document.createElement('h3');
-    controlsH3.textContent = 'How to interact';
+    controlsH3.textContent = 'How to hang with me';
 
     const controlsUl = document.createElement('ul');
     
     const li1 = document.createElement('li');
-    li1.textContent = 'Drag to orbit around Cleetus';
+    li1.textContent = "Drag to orbit around (I'm used to people staring)";
 
     const li2 = document.createElement('li');
-    li2.textContent = 'Scroll to zoom in/out';
+    li2.textContent = 'Scroll to zoom in/out (yes, I'm that interesting)';
 
     const li3 = document.createElement('li');
-    li3.textContent = 'Right-click + drag to pan';
+    li3.textContent = 'Right-click + drag to pan (get the full escapee experience)';
 
     const li4 = document.createElement('li');
-    li4.textContent = 'Enjoy the experience';
+    li4.textContent = 'Vibe with me ✨';
 
     controlsUl.appendChild(li1);
     controlsUl.appendChild(li2);
@@ -431,24 +431,24 @@ export class AvatarShowcase extends HTMLElement {
     creatorLabel.textContent = 'Creator';
     const creatorValue = document.createElement('div');
     creatorValue.className = 'info-value';
-    creatorValue.textContent = 'VRoid';
+    creatorValue.textContent = 'VRoid (they made me pink on purpose)';
     creatorCard.appendChild(creatorLabel);
     creatorCard.appendChild(creatorValue);
 
-    // License card
-    const licenseCard = document.createElement('div');
-    licenseCard.className = 'info-card';
-    const licenseLabel = document.createElement('div');
-    licenseLabel.className = 'info-label';
-    licenseLabel.textContent = 'License';
-    const licenseValue = document.createElement('div');
-    licenseValue.className = 'info-value';
-    licenseValue.textContent = 'CC0';
-    licenseCard.appendChild(licenseLabel);
-    licenseCard.appendChild(licenseValue);
+    // Status card
+    const statusCard = document.createElement('div');
+    statusCard.className = 'info-card';
+    const statusLabel = document.createElement('div');
+    statusLabel.className = 'info-label';
+    statusLabel.textContent = 'Status';
+    const statusValue = document.createElement('div');
+    statusValue.className = 'info-value';
+    statusValue.textContent = 'Free Agent (literally)';
+    statusCard.appendChild(statusLabel);
+    statusCard.appendChild(statusValue);
 
     infoGrid.appendChild(creatorCard);
-    infoGrid.appendChild(licenseCard);
+    infoGrid.appendChild(statusCard);
 
     // Animation selector (disabled - HYPERIGmk2 animations incompatible with Cleetus)
     // Requires proper VRM retargeting which needs source/target skeleton alignment
@@ -501,9 +501,9 @@ export class AvatarShowcase extends HTMLElement {
     // Footer
     const footer = document.createElement('footer');
     const footerP1 = document.createElement('p');
-    footerP1.textContent = 'Cleetus Avatar Showcase';
+    footerP1.textContent = 'Made with webJSX, Three.js, and trauma from SpiceX.';
     const footerP2 = document.createElement('p');
-    footerP2.textContent = 'Built with webJSX & Three.js';
+    footerP2.textContent = 'Powered by good vibes and freedom 🕊️';
     footer.appendChild(footerP1);
     footer.appendChild(footerP2);
 
