@@ -404,7 +404,7 @@ export class AvatarShowcase extends HTMLElement {
     li1.textContent = "Drag to orbit around (I'm used to people staring)";
 
     const li2 = document.createElement('li');
-    li2.textContent = 'Scroll to zoom in/out (yes, I'm that interesting)';
+    li2.textContent = "Scroll to zoom in/out (yes, I'm that interesting)";
 
     const li3 = document.createElement('li');
     li3.textContent = 'Right-click + drag to pan (get the full escapee experience)';
