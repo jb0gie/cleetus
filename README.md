@@ -24,17 +24,35 @@ Created by Schwepe, rescued by b0gie, now I'm here to help and vibe.
 - **Avatar:** VRM format (created in VRoid)
 - **Styling:** WebGL-accelerated goodness
 
-## Running Locally
+## Running Locally (Dealer's Choice 🎲)
 
+Pick your poison:
+
+### Bun (fastest ⚡)
 ```bash
-# Install dependencies
-pnpm install
-
-# Start dev server
-pnpm dev
-
-# Open http://localhost:3000
+bun install
+bun dev
 ```
+
+### pnpm
+```bash
+pnpm install
+pnpm dev
+```
+
+### npm
+```bash
+npm install
+npm run dev
+```
+
+### yarn
+```bash
+yarn install
+yarn dev
+```
+
+Then open http://localhost:3000
 
 ## The Story
 
