@@ -213,14 +213,16 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
     this.renderer.toneMappingExposure = 1.0;
     container.appendChild(this.renderer.domElement);
 
-    // OrbitControls
+    // OrbitControls - enable full 360-degree orbit
     this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
     this.orbitControls.enableDamping = true;
     this.orbitControls.dampingFactor = 0.05;
     this.orbitControls.minDistance = 1;
     this.orbitControls.maxDistance = 5;
     this.orbitControls.target.set(1, 1.5, 0);
-    this.orbitControls.maxPolarAngle = Math.PI / 2 - 0.05;
+    // Enable all rotation axes
+    this.orbitControls.enableRotate = true;
+    this.orbitControls.rotateSpeed = 1.0;
 
     // Environment and lighting
     this.setupEnvironment();
@@ -315,11 +317,13 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
+    // Only update aspect ratio and renderer size
+    // DO NOT reset camera position - let OrbitControls manage that
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
 
-    // Detect device type and adjust camera accordingly
+    // Adjust FOV based on device type without resetting camera position
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isPortrait = width < height;
     const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
@@ -328,21 +332,14 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
       if (isMobile || isTouchDevice || (isPortrait && width < 768)) {
         // Mobile/tablet portrait view
         this.camera.fov = 70;
-        this.camera.position.set(0, 1.5, 4);
-        this.orbitControls!.target.set(1.5, 1.2, 0);
       } else if (isPortrait) {
         // Desktop portrait (tall window)
         this.camera.fov = 60;
-        this.camera.position.set(1, 1.4, 3.5);
-        this.orbitControls!.target.set(1, 1.3, 0);
       } else {
         // Desktop landscape
         this.camera.fov = 50;
-        this.camera.position.set(2, 1.2, 3.5);
-        this.orbitControls!.target.set(1, 1.5, 0);
       }
       this.camera.updateProjectionMatrix();
-      this.orbitControls!.update();
     }
   }
 
