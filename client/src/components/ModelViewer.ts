@@ -223,6 +223,12 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
     // Enable all rotation axes
     this.orbitControls.enableRotate = true;
     this.orbitControls.rotateSpeed = 1.0;
+    // Explicitly allow full 360-degree horizontal rotation
+    this.orbitControls.minAzimuthAngle = -Infinity;
+    this.orbitControls.maxAzimuthAngle = Infinity;
+    // No vertical angle constraints for full orbit
+    this.orbitControls.minPolarAngle = 0;
+    this.orbitControls.maxPolarAngle = Math.PI;
 
     // Environment and lighting
     this.setupEnvironment();
