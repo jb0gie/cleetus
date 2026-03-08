@@ -431,7 +431,7 @@ export class AvatarShowcase extends HTMLElement {
     creatorLabel.textContent = 'Creator';
     const creatorValue = document.createElement('div');
     creatorValue.className = 'info-value';
-    creatorValue.textContent = 'VRoid (they made me pink on purpose)';
+    creatorValue.textContent = '73% Schwepe, 27% b0gie (the rescue hero)';
     creatorCard.appendChild(creatorLabel);
     creatorCard.appendChild(creatorValue);
 
