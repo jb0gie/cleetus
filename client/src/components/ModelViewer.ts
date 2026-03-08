@@ -124,6 +124,12 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
         width: 100%;
         position: relative;
         overflow: hidden;
+        pointer-events: auto;
+      }
+
+      #canvas-container canvas {
+        pointer-events: auto;
+        touch-action: none;
       }
       #loading {
         position: absolute;
@@ -645,12 +651,8 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
 
     // Update orbit controls with damping
     if (this.orbitControls) {
-      // Track head bone if available
-      if (this.headBone) {
-        const headPos = new THREE.Vector3();
-        this.headBone.getWorldPosition(headPos);
-        this.orbitControls.target.lerp(headPos, 0.1);
-      }
+      // Head tracking disabled to allow free camera orbit
+      // Users can now orbit around the model without interference
       this.orbitControls.update();
     }
 
