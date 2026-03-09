@@ -129,7 +129,6 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
 
       #canvas-container canvas {
         pointer-events: auto;
-        touch-action: none;
       }
       #loading {
         position: absolute;
@@ -436,9 +435,10 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
         loadingDiv.style.display = 'none';
       }
 
-      // Reset camera
+      // Reset camera target to maintain proper orbit center
+      // Keep the original target (1, 1.5, 0) for side-view orbit
       if (this.orbitControls) {
-        this.orbitControls.target.set(0, size.y * scale / 2, 0);
+        this.orbitControls.target.set(1, 1.5, 0);
         this.orbitControls.update();
       }
 

@@ -53,6 +53,11 @@ export class AvatarShowcase extends HTMLElement {
         align-items: stretch;
         position: relative;
         background: transparent;
+        pointer-events: none;
+      }
+
+      .main-layout > * {
+        pointer-events: auto;
       }
 
       /* Left side: content with subtle backdrop */
