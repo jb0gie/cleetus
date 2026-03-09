@@ -362,7 +362,9 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
 
     try {
       const loader = new GLTFLoader();
-      const gltf = await loader.loadAsync('/cleetus.glb');
+      // Use relative path for GitHub Pages compatibility
+      const modelPath = import.meta.env.BASE_URL ? `${import.meta.env.BASE_URL}cleetus.glb` : 'cleetus.glb';
+      const gltf = await loader.loadAsync(modelPath);
 
       // Store animations from the GLB
       if (gltf.animations && gltf.animations.length > 0) {
