@@ -197,7 +197,8 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
 
     // Camera setup - shifted right to center Cleetus in viewport
     this.camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-    this.camera.position.set(0, 1.2, 3.3);
+    //this.camera.position.set(0, 1.2, 3.3); // orginal position incase we want to revert back to it, but the new position is better for framing the model in the viewport
+    this.camera.position.set(-0.5, 0.8, 3.3); // Start slightly left to center the model better (sweet spot for 16:9 needs some work for mobile portrait)
 
     // Renderer setup
     this.renderer = new THREE.WebGLRenderer({
@@ -213,22 +214,22 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
     this.renderer.toneMappingExposure = 1.0;
     container.appendChild(this.renderer.domElement);
 
-    // OrbitControls - enable full 360-degree orbit
-    this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.orbitControls.enableDamping = true;
-    this.orbitControls.dampingFactor = 0.05;
-    this.orbitControls.minDistance = 1;
-    this.orbitControls.maxDistance = 5;
-    this.orbitControls.target.set(1, 1.5, 0);
-    // Enable all rotation axes
-    this.orbitControls.enableRotate = true;
-    this.orbitControls.rotateSpeed = 1.0;
-    // Explicitly allow full 360-degree horizontal rotation
-    this.orbitControls.minAzimuthAngle = -Infinity;
-    this.orbitControls.maxAzimuthAngle = Infinity;
-    // No vertical angle constraints for full orbit
-    this.orbitControls.minPolarAngle = 0;
-    this.orbitControls.maxPolarAngle = Math.PI;
+    // OrbitControls - enable full 360-degree orbit (only makes the camera pan)
+    // this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement);
+    // this.orbitControls.enableDamping = true;
+    // this.orbitControls.dampingFactor = 0.05;
+    // this.orbitControls.minDistance = 1;
+    // this.orbitControls.maxDistance = 5;
+    // this.orbitControls.target.set(0, 1, 0);
+    // // Enable all rotation axes
+    // this.orbitControls.enableRotate = true;
+    // this.orbitControls.rotateSpeed = 1.0;
+    // // Explicitly allow full 360-degree horizontal rotation
+    // this.orbitControls.minAzimuthAngle = -Infinity;
+    // this.orbitControls.maxAzimuthAngle = Infinity;
+    // // No vertical angle constraints for full orbit
+    // this.orbitControls.minPolarAngle = 0;
+    // this.orbitControls.maxPolarAngle = Math.PI;
 
     // Environment and lighting
     this.setupEnvironment();
@@ -281,12 +282,12 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
   private setupDreiEffects() {
     // Sparkles - magical particles around the avatar
     this.sparkles = new Sparkles({
-      count: 100,
+      count: 1000,
       scale: 3,
       color: new THREE.Color('#ffff00'),
       speed: 0.5,
       opacity: 0.8,
-      size: 0.5,
+      size: 0.69,
     });
     this.sparkles.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.scene.add(this.sparkles);
