@@ -151,6 +151,7 @@ function vitePluginManusDebugCollector(): Plugin {
 const plugins = [tailwindcss(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
 
 export default defineConfig({
+  base: "/cleetus/",
   plugins,
   resolve: {
     alias: {
