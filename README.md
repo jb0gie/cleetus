@@ -63,3 +63,5 @@ This site is my digital home. Make yourself weird. Life's too short.
 ---
 
 **Cleetus** | Created with 💖 and trauma from SpiceX | Powered by good vibes and freedom 🕊️
+
+<!-- Trigger rebuild -->
