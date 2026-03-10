@@ -7,7 +7,8 @@ import type { CardStack } from './CardStack';
 /**
  * AvatarShowcase Component - Side-by-side layout
  *
- * Model viewer on the right (full background), stacked cards on the left
+ * Desktop: Model viewer on the right (full background), stacked cards on the left
+ * Mobile: Model viewer as full background, cards overlaid on top
  * Pink/magenta gradient theme, chill vibes
  */
 export class AvatarShowcase extends HTMLElement {
@@ -72,7 +73,7 @@ export class AvatarShowcase extends HTMLElement {
         overflow: hidden;
       }
 
-      /* Main layout: 3D as full background, content overlaid */
+      /* Main layout */
       .main-layout {
         flex: 1;
         display: grid;
@@ -80,15 +81,10 @@ export class AvatarShowcase extends HTMLElement {
         gap: 0;
         align-items: stretch;
         position: relative;
-        background: transparent;
-        pointer-events: none;
+        min-height: 100vh;
       }
 
-      .main-layout > * {
-        pointer-events: auto;
-      }
-
-      /* Left side: content with subtle backdrop */
+      /* Left side: content */
       .content-side {
         display: flex;
         flex-direction: column;
@@ -97,8 +93,8 @@ export class AvatarShowcase extends HTMLElement {
         z-index: 10;
         background: linear-gradient(
           to right,
-          rgba(0, 0, 0, 0.6) 0%,
-          rgba(0, 0, 0, 0.3) 50%,
+          rgba(0, 0, 0, 0.7) 0%,
+          rgba(0, 0, 0, 0.4) 50%,
           transparent 100%
         );
         pointer-events: none;
@@ -155,11 +151,10 @@ export class AvatarShowcase extends HTMLElement {
         font-weight: 500;
       }
 
-      /* Card Stack Container - uses remaining space */
+      /* Card Stack Container */
       .card-stack-container {
         flex: 1;
         min-height: 0;
-        margin-bottom: 0;
       }
 
       card-stack {
@@ -190,7 +185,7 @@ export class AvatarShowcase extends HTMLElement {
         background: transparent;
       }
 
-      /* Desktop: 3D as full background */
+      /* Desktop: side-by-side */
       @media (min-width: 1025px) {
         .viewer-side {
           position: fixed;
@@ -203,7 +198,6 @@ export class AvatarShowcase extends HTMLElement {
         .main-layout {
           position: relative;
           z-index: 10;
-          height: 100vh;
         }
 
         .content-side {
@@ -212,69 +206,122 @@ export class AvatarShowcase extends HTMLElement {
         }
       }
 
-      /* Tablet */
+      /* Mobile/Tablet: Model underneath, text overlay */
       @media (max-width: 1024px) {
-        .main-layout {
-          grid-template-columns: 1fr;
+        .container {
+          position: relative;
           min-height: 100vh;
+          min-height: 100dvh;
         }
 
-        .content-side {
-          background: linear-gradient(
-            to bottom,
-            rgba(0, 0, 0, 0.6) 0%,
-            rgba(0, 0, 0, 0.4) 50%,
-            rgba(0, 0, 0, 0.2) 100%
-          );
-          padding: 2rem;
-          min-height: auto;
-        }
-
-        .content-inner {
-          max-width: 500px;
-          height: auto;
-          min-height: 500px;
+        .main-layout {
+          display: block;
+          position: relative;
+          min-height: 100vh;
+          min-height: 100dvh;
         }
 
         .viewer-side {
-          height: 50vh;
-          min-height: 400px;
+          position: fixed;
+          inset: 0;
+          z-index: 1;
+          width: 100vw;
+          height: 100vh;
+          height: 100dvh;
         }
 
-        .card-stack-container {
-          min-height: 300px;
+        .viewer-container {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
         }
 
-        h1 {
-          font-size: 2.5rem;
+        model-viewer {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
         }
-      }
 
-      /* Mobile */
-      @media (max-width: 640px) {
         .content-side {
-          padding: 1.5rem;
+          position: relative;
+          z-index: 10;
+          min-height: 100vh;
+          min-height: 100dvh;
+          justify-content: center;
+          padding: 0.75rem;
+          padding-top: 1.5rem;
+          padding-bottom: 1rem;
+          background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.9) 0%,
+            rgba(0, 0, 0, 0.7) 30%,
+            rgba(0, 0, 0, 0.4) 60%,
+            transparent 100%
+          );
+          pointer-events: none;
+        }
+
+        .content-side > * {
+          pointer-events: auto;
         }
 
         .content-inner {
-          min-height: 450px;
+          max-width: 100%;
+          margin: 0;
+          height: auto;
+          min-height: unset;
+          max-height: calc(100vh - 2rem);
+          max-height: calc(100dvh - 2rem);
         }
 
-        .header-emoji {
-          font-size: 2.5rem;
+        .card-stack-container {
+          flex: 0 0 auto;
+          min-height: unset;
+          height: auto;
+          max-height: 45vh;
+          max-height: 45dvh;
+        }
+
+        card-stack {
+          height: 100%;
         }
 
         h1 {
           font-size: 2rem;
         }
+      }
 
-        .card-stack-container {
-          min-height: 280px;
+      /* Small Mobile */
+      @media (max-width: 640px) {
+        .content-side {
+          padding: 0.5rem;
+          padding-top: 1rem;
+          padding-bottom: 0.75rem;
         }
 
-        .viewer-side {
-          height: 45vh;
-          min-height: 350px;
+        .content-inner {
+          gap: 0.75rem;
+        }
+
+        .header-emoji {
+          font-size: 1.75rem;
+          margin-bottom: 0.25rem;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+          font-size: 0.85rem;
+        }
+
+        .card-stack-container {
+          max-height: 50vh;
+          max-height: 50dvh;
         }
       }
     `;
@@ -283,7 +330,7 @@ export class AvatarShowcase extends HTMLElement {
     const container = document.createElement('div');
     container.className = 'container';
 
-    // Main layout: content on left, viewer on right
+    // Main layout
     const mainLayout = document.createElement('div');
     mainLayout.className = 'main-layout';
 

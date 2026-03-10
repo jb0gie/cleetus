@@ -336,14 +336,17 @@ export class ModelViewer extends HTMLElement implements HTMLElement {
 
     if (this.model) {
       if (isMobile || isTouchDevice || (isPortrait && width < 768)) {
-        // Mobile/tablet portrait view
+        // Mobile/tablet portrait view - center camera and zoom out slightly
         this.camera.fov = 70;
+        this.camera.position.set(0, 0.6, 3.8); // Centered, lower, further back for full body
       } else if (isPortrait) {
         // Desktop portrait (tall window)
         this.camera.fov = 60;
+        this.camera.position.set(-0.3, 0.8, 3.3);
       } else {
-        // Desktop landscape
+        // Desktop landscape - offset to left to account for text panel on left
         this.camera.fov = 50;
+        this.camera.position.set(-0.5, 0.8, 3.3);
       }
       this.camera.updateProjectionMatrix();
     }
