@@ -12,7 +12,6 @@ import type { CardStack } from './CardStack';
  */
 export class AvatarShowcase extends HTMLElement {
   private cards: CardData[] = [];
-  private modelViewer: HTMLElement | null = null;
 
   constructor() {
     super();
@@ -22,7 +21,6 @@ export class AvatarShowcase extends HTMLElement {
   connectedCallback() {
     this.render();
     this.loadContent();
-    this.setupAnimationControls();
   }
 
   private loadContent() {
@@ -41,45 +39,6 @@ export class AvatarShowcase extends HTMLElement {
     const cardStack = shadowRoot.querySelector('card-stack') as CardStack;
     if (cardStack && this.cards.length > 0) {
       cardStack.data = this.cards;
-    }
-  }
-
-  private setupAnimationControls() {
-    const shadowRoot = this.shadowRoot;
-    if (!shadowRoot) return;
-
-    this.modelViewer = shadowRoot.querySelector('model-viewer');
-    const animSelect = shadowRoot.querySelector('#anim-select') as HTMLSelectElement;
-
-    if (animSelect && this.modelViewer) {
-      animSelect.addEventListener('change', (e) => {
-        const target = e.target as HTMLSelectElement;
-        const anim = target.value;
-        if (anim && this.modelViewer) {
-          this.modelViewer.setAttribute('animation', anim);
-        }
-      });
-    }
-
-    // Update available animations when model loads
-    if (this.modelViewer) {
-      this.modelViewer.addEventListener('model-loaded', () => {
-        this.populateAnimationDropdown();
-      });
-    }
-  }
-
-  private populateAnimationDropdown() {
-    const shadowRoot = this.shadowRoot;
-    if (!shadowRoot) return;
-
-    const animSelect = shadowRoot.querySelector('#anim-select') as HTMLSelectElement;
-    const modelViewer = shadowRoot.querySelector('model-viewer') as any;
-
-    if (animSelect && modelViewer && modelViewer.getAvailableAnimations) {
-      const animations = modelViewer.getAvailableAnimations();
-      animSelect.innerHTML = '<option value="">Select Animation...</option>' +
-        animations.map((anim: string) => `<option value="${anim}">${anim}</option>`).join('');
     }
   }
 
@@ -143,6 +102,7 @@ export class AvatarShowcase extends HTMLElement {
           transparent 100%
         );
         pointer-events: none;
+        height: 100%;
       }
 
       .content-side > * {
@@ -153,12 +113,16 @@ export class AvatarShowcase extends HTMLElement {
         max-width: 28rem;
         margin: 0 auto;
         width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
       }
 
       /* Header */
       .header {
         text-align: center;
-        margin-bottom: 1.5rem;
+        flex-shrink: 0;
       }
 
       .header-emoji {
@@ -191,54 +155,16 @@ export class AvatarShowcase extends HTMLElement {
         font-weight: 500;
       }
 
-      /* Card Stack Container */
+      /* Card Stack Container - uses remaining space */
       .card-stack-container {
-        height: 380px;
-        margin-bottom: 1.5rem;
+        flex: 1;
+        min-height: 0;
+        margin-bottom: 0;
       }
 
       card-stack {
         width: 100%;
         height: 100%;
-      }
-
-      /* Animation Controls */
-      .controls-panel {
-        background: rgba(255, 0, 255, 0.2);
-        backdrop-filter: blur(0.5rem);
-        border-radius: 1rem;
-        padding: 1rem 1.5rem;
-        border: 2px solid #ff00ff;
-        box-shadow: 0 0 20px #ff00ff, inset 0 0 20px rgba(255, 20, 147, 0.3);
-      }
-
-      .controls-panel h3 {
-        font-size: 0.875rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #ffff00;
-        text-shadow: 0 0 10px #ff00ff;
-        margin-bottom: 0.75rem;
-        letter-spacing: 0.05em;
-        font-family: 'Poppins', sans-serif;
-      }
-
-      .anim-select {
-        width: 100%;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid #ff00ff;
-        border-radius: 0.5rem;
-        padding: 0.5rem;
-        color: #ffffff;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.85rem;
-        cursor: pointer;
-        outline: none;
-      }
-
-      .anim-select option {
-        background: #1a1a2e;
-        color: #ffffff;
       }
 
       /* Right side: avatar viewer */
@@ -277,6 +203,7 @@ export class AvatarShowcase extends HTMLElement {
         .main-layout {
           position: relative;
           z-index: 10;
+          height: 100vh;
         }
 
         .content-side {
@@ -289,6 +216,7 @@ export class AvatarShowcase extends HTMLElement {
       @media (max-width: 1024px) {
         .main-layout {
           grid-template-columns: 1fr;
+          min-height: 100vh;
         }
 
         .content-side {
@@ -304,11 +232,17 @@ export class AvatarShowcase extends HTMLElement {
 
         .content-inner {
           max-width: 500px;
+          height: auto;
+          min-height: 500px;
         }
 
         .viewer-side {
           height: 50vh;
           min-height: 400px;
+        }
+
+        .card-stack-container {
+          min-height: 300px;
         }
 
         h1 {
@@ -322,6 +256,10 @@ export class AvatarShowcase extends HTMLElement {
           padding: 1.5rem;
         }
 
+        .content-inner {
+          min-height: 450px;
+        }
+
         .header-emoji {
           font-size: 2.5rem;
         }
@@ -331,7 +269,7 @@ export class AvatarShowcase extends HTMLElement {
         }
 
         .card-stack-container {
-          height: 350px;
+          min-height: 280px;
         }
 
         .viewer-side {
@@ -372,19 +310,8 @@ export class AvatarShowcase extends HTMLElement {
     const cardStack = document.createElement('card-stack');
     cardStackContainer.appendChild(cardStack);
 
-    // Controls Panel
-    const controlsPanel = document.createElement('div');
-    controlsPanel.className = 'controls-panel';
-    controlsPanel.innerHTML = `
-      <h3>Animation</h3>
-      <select id="anim-select" class="anim-select">
-        <option value="">Select Animation...</option>
-      </select>
-    `;
-
     contentInner.appendChild(header);
     contentInner.appendChild(cardStackContainer);
-    contentInner.appendChild(controlsPanel);
     contentSide.appendChild(contentInner);
 
     // Right side: avatar viewer
