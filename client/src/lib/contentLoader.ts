@@ -17,7 +17,9 @@ function parseInlineMarkdown(text: string): string {
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/_(.+?)_/g, '<em>$1</em>')
     // Links [text](url)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+    // Auto-link bare URLs (github.com, etc.)
+    .replace(/(^|\s)(github\.com\/[^\s]+)/g, '$1<a href="https://$2" target="_blank" rel="noopener noreferrer">$2</a>');
 }
 
 /**
