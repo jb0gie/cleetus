@@ -148,7 +148,9 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [tailwindcss(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+// Only include manus runtime plugins in development to avoid bloated HTML in production
+const isDev = process.env.NODE_ENV !== 'production';
+const plugins = [tailwindcss(), isDev && vitePluginManusRuntime(), isDev && vitePluginManusDebugCollector()].filter(Boolean) as Plugin[];
 
 export default defineConfig({
   base: "/cleetus/",
