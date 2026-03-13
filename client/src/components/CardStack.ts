@@ -10,6 +10,7 @@ export class CardStack extends HTMLElement {
   private currentIndex = 0;
   private touchStartX = 0;
   private touchEndX = 0;
+  private keydownHandler: ((e: KeyboardEvent) => void) | null = null;
 
   constructor() {
     super();
@@ -29,10 +30,18 @@ export class CardStack extends HTMLElement {
   }
 
   private setupKeyboardNavigation() {
-    document.addEventListener('keydown', (e) => {
+    this.keydownHandler = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') this.previousCard();
       if (e.key === 'ArrowRight') this.nextCard();
-    });
+    };
+    document.addEventListener('keydown', this.keydownHandler);
+  }
+
+  disconnectedCallback() {
+    if (this.keydownHandler) {
+      document.removeEventListener('keydown', this.keydownHandler);
+      this.keydownHandler = null;
+    }
   }
 
   private setupTouchNavigation() {
